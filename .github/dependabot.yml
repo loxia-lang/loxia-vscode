@@ -13,6 +13,9 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # Must match engines.vscode (^1.85.0); a newer @types/vscode would advertise
+      # APIs the minimum VS Code does not have.
+      - dependency-name: "@types/vscode"
   - package-ecosystem: github-actions
     directory: /
     schedule:
