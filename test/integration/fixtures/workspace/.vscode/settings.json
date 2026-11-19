@@ -1,0 +1,7 @@
+{
+  "loxia.cli.path": "node",
+  "loxia.cli.args": ["${workspaceFolder}/fake-lsp.js"],
+  "loxia.server.args": ["lsp"],
+  "loxia.features.inlayHints": false,
+  "loxia.statusBar.enabled": false
+}

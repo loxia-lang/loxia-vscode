@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Loxia language
+    url: https://github.com/loxia-lang/loxia/issues
+    about: Compiler, checker, formatter, LSP and stdlib issues belong in the language repo.
+  - name: Documentation
+    url: https://loxia-lang.github.io/loxia/
+    about: Language reference, guarantees and standard library docs.

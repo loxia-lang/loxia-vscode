@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in the Loxia extension does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please include a minimal `.lx` file and the output channels
+        (**Loxia Language Server** and **Loxia Run**) when relevant.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Actual behavior, expected behavior, and a minimal reproducer.
+    validations:
+      required: true
+  - type: input
+    id: extension
+    attributes:
+      label: Extension version
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: input
+    id: vscode
+    attributes:
+      label: VS Code version
+      placeholder: 1.95.0
+    validations:
+      required: true
+  - type: input
+    id: loxia
+    attributes:
+      label: loxia --version
+      placeholder: loxia 1.1.0
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options: [Linux, macOS, Windows, Remote/WSL, Other]
+    validations:
+      required: true

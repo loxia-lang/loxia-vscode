@@ -1,0 +1,12 @@
+**
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE
+!LICENSE-MIT
+!LICENSE-APACHE
+!language-configuration.json
+!syntaxes/**
+!media/**
+!dist/extension.js
+!dist/extension.js.map

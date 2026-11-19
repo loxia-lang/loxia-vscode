@@ -1,0 +1,292 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Loxia",
+  "scopeName": "source.loxia",
+  "fileTypes": [
+    "lx"
+  ],
+  "patterns": [
+    {
+      "include": "#doc-comment"
+    },
+    {
+      "include": "#line-comment"
+    },
+    {
+      "include": "#block-comment-0"
+    },
+    {
+      "include": "#declarations"
+    },
+    {
+      "include": "#string-raw-triple"
+    },
+    {
+      "include": "#string-raw"
+    },
+    {
+      "include": "#string-triple"
+    },
+    {
+      "include": "#string"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#keywords-control"
+    },
+    {
+      "include": "#keywords-declaration"
+    },
+    {
+      "include": "#keywords-operator-word"
+    },
+    {
+      "include": "#keywords-modifier"
+    },
+    {
+      "include": "#keywords-constant"
+    },
+    {
+      "include": "#builtin-class"
+    },
+    {
+      "include": "#builtin-function"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#calls"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#punctuation"
+    }
+  ],
+  "repository": {
+    "doc-comment": {
+      "match": "^\\s*///.*$",
+      "name": "comment.line.documentation.loxia"
+    },
+    "line-comment": {
+      "match": "#.*$",
+      "name": "comment.line.number-sign.loxia"
+    },
+    "block-comment-0": {
+      "begin": "/\\*",
+      "end": "\\*/",
+      "name": "comment.block.loxia",
+      "patterns": [
+        {
+          "include": "#line-comment"
+        },
+        {
+          "include": "#block-comment-1"
+        }
+      ]
+    },
+    "block-comment-1": {
+      "begin": "/\\*",
+      "end": "\\*/",
+      "name": "comment.block.loxia",
+      "patterns": [
+        {
+          "include": "#line-comment"
+        },
+        {
+          "include": "#block-comment-2"
+        }
+      ]
+    },
+    "block-comment-2": {
+      "begin": "/\\*",
+      "end": "\\*/",
+      "name": "comment.block.loxia",
+      "patterns": [
+        {
+          "include": "#line-comment"
+        }
+      ]
+    },
+    "escapes": {
+      "match": "\\\\u\\{[0-9a-fA-F]+\\}|\\\\.",
+      "name": "constant.character.escape.loxia"
+    },
+    "interpolation": {
+      "begin": "\\$\\{",
+      "end": "\\}",
+      "name": "meta.interpolation.loxia",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.interpolation.begin.loxia"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.interpolation.end.loxia"
+        }
+      },
+      "patterns": [
+        {
+          "include": "$self"
+        }
+      ]
+    },
+    "string-raw-triple": {
+      "begin": "r\"\"\"",
+      "end": "\"\"\"",
+      "name": "string.quoted.triple.raw.loxia"
+    },
+    "string-raw": {
+      "begin": "r\"",
+      "end": "\"",
+      "name": "string.quoted.double.raw.loxia"
+    },
+    "string-triple": {
+      "begin": "\"\"\"",
+      "end": "\"\"\"",
+      "name": "string.quoted.triple.loxia",
+      "patterns": [
+        {
+          "include": "#escapes"
+        },
+        {
+          "include": "#interpolation"
+        }
+      ]
+    },
+    "string": {
+      "begin": "\"",
+      "end": "\"",
+      "name": "string.quoted.double.loxia",
+      "patterns": [
+        {
+          "include": "#escapes"
+        },
+        {
+          "include": "#interpolation"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "\\b0[xX][0-9a-fA-F_]+",
+          "name": "constant.numeric.hex.loxia"
+        },
+        {
+          "match": "\\b0[bB][01_]+",
+          "name": "constant.numeric.binary.loxia"
+        },
+        {
+          "match": "\\b0[oO][0-7_]+",
+          "name": "constant.numeric.octal.loxia"
+        },
+        {
+          "match": "\\b[0-9][0-9_]*(?:\\.[0-9][0-9_]*)(?:[eE][+-]?[0-9][0-9_]*)?|\\b[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*",
+          "name": "constant.numeric.float.loxia"
+        },
+        {
+          "match": "\\b[0-9][0-9_]*",
+          "name": "constant.numeric.integer.loxia"
+        }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.declaration.loxia"
+            },
+            "2": {
+              "name": "entity.name.function.loxia"
+            }
+          }
+        },
+        {
+          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.declaration.loxia"
+            },
+            "2": {
+              "name": "entity.name.class.loxia"
+            }
+          }
+        },
+        {
+          "match": "\\b(interface)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.declaration.loxia"
+            },
+            "2": {
+              "name": "entity.name.class.interface.loxia"
+            }
+          }
+        },
+        {
+          "match": "\\b(enum)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.declaration.loxia"
+            },
+            "2": {
+              "name": "entity.name.class.enum.loxia"
+            }
+          }
+        }
+      ]
+    },
+    "types": {
+      "match": "\\b[A-Z][A-Za-z0-9_]*\\b",
+      "name": "entity.name.type.loxia"
+    },
+    "calls": {
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(?=\\s*\\()",
+      "name": "entity.name.function.call.loxia"
+    },
+    "operators": {
+      "match": "\\.\\.\\.|\\.\\.=|>>>|!=|\\*\\*|\\->|\\.\\.|//|<<|<=|==|=>|>=|>>|\\?\\.|\\?\\?|!|%|\\&|\\*|\\+|\\-|/|<|=|>|\\?|\\^|\\||\\~",
+      "name": "keyword.operator.loxia"
+    },
+    "punctuation": {
+      "match": "\\(|\\)|,|\\.|:|;|\\[|\\]|\\{|\\}",
+      "name": "punctuation.loxia"
+    },
+    "builtin-class": {
+      "match": "\\b(?:Exception|Float|Int|Result|RuntimeError)\\b",
+      "name": "support.class.builtin.loxia"
+    },
+    "builtin-function": {
+      "match": "\\b(?:args|charCodeAt|chars|fromCodePoint|fs|io|join|len|math|os|print|range|repr|str|substr|time)\\b",
+      "name": "support.function.builtin.loxia"
+    },
+    "keywords-control": {
+      "match": "\\b(?:elif|else|except|finally|for|if|in|match|raise|return|try|while)\\b",
+      "name": "keyword.control.loxia"
+    },
+    "keywords-declaration": {
+      "match": "\\b(?:as|class|enum|fn|from|import|interface|is|super|this|val|var)\\b",
+      "name": "keyword.other.declaration.loxia"
+    },
+    "keywords-operator-word": {
+      "match": "\\b(?:and|not|or)\\b",
+      "name": "keyword.operator.word.loxia"
+    },
+    "keywords-modifier": {
+      "match": "\\b(?:async|await)\\b",
+      "name": "storage.modifier.loxia"
+    },
+    "keywords-constant": {
+      "match": "\\b(?:false|nil|true)\\b",
+      "name": "constant.language.loxia"
+    }
+  }
+}

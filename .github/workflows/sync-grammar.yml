@@ -1,0 +1,59 @@
+name: Sync grammar
+
+# Manual only: pick a language release, download its grammar asset, verify the checksum and
+# open a PR. The extension never downloads the grammar at runtime.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Language release to pin, without the leading v (e.g. 1.2.0)"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-grammar
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Download and pin the release grammar
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::'$VERSION' is not a semantic version."
+            exit 1
+          fi
+          node scripts/sync-grammar.mjs --version "$VERSION"
+          node scripts/check-grammar.mjs
+      - name: Open the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          if git diff --quiet; then
+            echo "::notice::The grammar is already pinned to $VERSION."
+            exit 0
+          fi
+          branch="chore/grammar-$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add grammar.lock.json syntaxes/loxia.tmLanguage.json
+          git commit -m "chore(grammar): sync with loxia $VERSION"
+          git push --force-with-lease -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "chore(grammar): sync with loxia $VERSION" \
+            --body "Automated grammar sync from the loxia-lang/loxia v$VERSION release. The SHA-256 is verified by scripts/check-grammar.mjs."

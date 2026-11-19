@@ -1,0 +1,473 @@
+{
+  "name": "loxia",
+  "displayName": "Loxia",
+  "description": "Loxia language support: syntax highlighting, LSP diagnostics, completion, hover, formatting, and run/build.",
+  "version": "1.1.0",
+  "publisher": "loxia-lang",
+  "license": "MIT OR Apache-2.0",
+  "author": {
+    "name": "Cassio Dalla"
+  },
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loxia-lang/loxia-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/loxia-lang/loxia-vscode/issues"
+  },
+  "homepage": "https://loxia-lang.github.io/loxia/",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "loxia",
+    "lox",
+    "language",
+    "lsp",
+    "llvm",
+    "tree-walk"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Syntax highlighting and the read-only language server are available. Run and Build are disabled until the workspace is trusted.",
+      "restrictedConfigurations": [
+        "loxia.cli.path",
+        "loxia.cli.args"
+      ]
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Run and Build need a local file; syntax highlighting and the language server may work in virtual workspaces."
+    }
+  },
+  "activationEvents": [
+    "onLanguage:loxia",
+    "onCommand:loxia.restartServer"
+  ],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test:unit",
+    "test:unit": "node scripts/test-unit.mjs",
+    "test:integration": "npm run compile && node test/integration/run.js",
+    "grammar:check": "node scripts/check-grammar.mjs",
+    "grammar:sync": "node scripts/sync-grammar.mjs",
+    "package": "node scripts/package.mjs",
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test:unit && npm run grammar:check && npm run compile",
+    "release:check": "node scripts/verify-release.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.20.5",
+    "@types/vscode": "1.85.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "4.1.1",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "ovsx": "1.4.0",
+    "prettier": "3.10.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.73.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "loxia",
+        "aliases": [
+          "Loxia",
+          "loxia"
+        ],
+        "extensions": [
+          ".lx"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./media/loxia.svg",
+          "dark": "./media/loxia.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "loxia",
+        "scopeName": "source.loxia",
+        "path": "./syntaxes/loxia.tmLanguage.json"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "loxia.runMenu",
+        "label": "Loxia"
+      }
+    ],
+    "commands": [
+      {
+        "command": "loxia.run",
+        "title": "Loxia: Run File",
+        "icon": "$(play)"
+      },
+      {
+        "command": "loxia.runInterpreted",
+        "title": "Loxia: Run (Interpreted)",
+        "icon": "$(play)"
+      },
+      {
+        "command": "loxia.runCompiled",
+        "title": "Loxia: Run (Compiled)",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "loxia.runWithArgs",
+        "title": "Loxia: Run with Arguments…",
+        "icon": "$(play-circle)"
+      },
+      {
+        "command": "loxia.build",
+        "title": "Loxia: Build Native Binary",
+        "icon": "$(package)"
+      },
+      {
+        "command": "loxia.check",
+        "title": "Loxia: Check File",
+        "icon": "$(check)"
+      },
+      {
+        "command": "loxia.repl",
+        "title": "Loxia: Open REPL",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "loxia.restartServer",
+        "title": "Loxia: Restart Language Server",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "loxia.showOutput",
+        "title": "Loxia: Show Run Output"
+      },
+      {
+        "command": "loxia.showLspOutput",
+        "title": "Loxia: Show Language Server Output"
+      },
+      {
+        "command": "loxia.openSettings",
+        "title": "Loxia: Open Settings"
+      },
+      {
+        "command": "loxia.openInstallDocs",
+        "title": "Loxia: Install the loxia CLI"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "loxia.run",
+          "when": "resourceLangId == loxia",
+          "group": "navigation@1"
+        }
+      ],
+      "editor/title": [
+        {
+          "submenu": "loxia.runMenu",
+          "when": "resourceLangId == loxia",
+          "group": "navigation@1"
+        }
+      ],
+      "loxia.runMenu": [
+        {
+          "command": "loxia.runInterpreted",
+          "when": "resourceLangId == loxia"
+        },
+        {
+          "command": "loxia.runCompiled",
+          "when": "resourceLangId == loxia"
+        },
+        {
+          "command": "loxia.runWithArgs",
+          "when": "resourceLangId == loxia"
+        },
+        {
+          "command": "loxia.build",
+          "when": "resourceLangId == loxia"
+        },
+        {
+          "command": "loxia.check",
+          "when": "resourceLangId == loxia"
+        },
+        {
+          "command": "loxia.repl",
+          "when": "resourceLangId == loxia"
+        }
+      ],
+      "editor/context": [
+        {
+          "submenu": "loxia.runMenu",
+          "when": "resourceLangId == loxia",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "submenu": "loxia.runMenu",
+          "when": "resourceExtname == .lx",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "loxia.run",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.runInterpreted",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.runCompiled",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.runWithArgs",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.build",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.check",
+          "when": "editorLangId == loxia"
+        },
+        {
+          "command": "loxia.repl"
+        },
+        {
+          "command": "loxia.restartServer"
+        },
+        {
+          "command": "loxia.showOutput"
+        },
+        {
+          "command": "loxia.showLspOutput"
+        },
+        {
+          "command": "loxia.openSettings"
+        },
+        {
+          "command": "loxia.openInstallDocs"
+        }
+      ]
+    },
+    "configurationDefaults": {
+      "[loxia]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+        "editor.detectIndentation": false
+      }
+    },
+    "configuration": {
+      "title": "Loxia",
+      "properties": {
+        "loxia.lsp.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Start the Loxia language server. Turn off for grammar-only highlighting."
+        },
+        "loxia.cli.path": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Executable of the loxia CLI (empty = autodetect loxia, python3 -m loxia or python -m loxia)."
+        },
+        "loxia.cli.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "scope": "resource",
+          "description": "Arguments inserted before the subcommand, e.g. [\"-m\", \"loxia\"] when loxia.cli.path is python3."
+        },
+        "loxia.server.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "lsp"
+          ],
+          "scope": "resource",
+          "description": "Arguments appended to the CLI for the language server (default [\"lsp\"])."
+        },
+        "loxia.server.cwd": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Working directory of the language server (empty = workspace folder). Supports ${workspaceFolder} and ${userHome}."
+        },
+        "loxia.lsp.trace": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "scope": "window",
+          "description": "Log JSON-RPC messages to the Loxia Language Server output channel."
+        },
+        "loxia.features.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show compiler and checker diagnostics from the language server."
+        },
+        "loxia.features.hover": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show type and documentation on hover."
+        },
+        "loxia.features.definition": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Go to definition for Loxia symbols."
+        },
+        "loxia.features.completion": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Completion for scopes, imports, modules, members and keywords."
+        },
+        "loxia.features.completionInheritedMembers": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Include superclass and interface members in completion."
+        },
+        "loxia.features.signatureHelp": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Signature help for functions, methods and constructors."
+        },
+        "loxia.features.inlayHints": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show inferred types for unannotated val/var/fields and for-loop bindings."
+        },
+        "loxia.features.formatting": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Format the document with the canonical Loxia formatter."
+        },
+        "loxia.features.codeActions": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show quick fixes offered by the language server."
+        },
+        "loxia.features.rename": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Semantic rename for Loxia symbols."
+        },
+        "loxia.features.documentSymbols": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Outline/document symbols for the current file."
+        },
+        "loxia.features.workspaceSymbols": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Workspace symbol search."
+        },
+        "loxia.run.mode": {
+          "type": "string",
+          "enum": [
+            "interpreted",
+            "compiled",
+            "ask"
+          ],
+          "enumDescriptions": [
+            "Run with the tree-walk interpreter (no build).",
+            "Build a native binary with --emit=exe and run it.",
+            "Ask every time with a QuickPick."
+          ],
+          "default": "interpreted",
+          "scope": "resource",
+          "description": "Engine used by the play button and by Loxia: Run File."
+        },
+        "loxia.run.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "scope": "resource",
+          "description": "Arguments passed to the Loxia program after --."
+        },
+        "loxia.run.cwd": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Working directory for run/build (empty = workspace folder). Supports ${workspaceFolder}."
+        },
+        "loxia.run.debug": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "description": "Run interpreted programs with --debug (overflow checks). Compiled builds use release semantics."
+        },
+        "loxia.run.saveBeforeRun": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Save the active Loxia document before running or building."
+        },
+        "loxia.run.compiled.outputDir": {
+          "type": "string",
+          "default": ".loxia/bin",
+          "scope": "resource",
+          "description": "Directory for compiled binaries, relative to the workspace folder (inside .loxia/, which projects already ignore)."
+        },
+        "loxia.run.compiled.maxHeap": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Optional --max-heap value for compiled binaries, e.g. 512M or 2G."
+        },
+        "loxia.statusBar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show the language server status in the status bar."
+        }
+      }
+    }
+  }
+}
