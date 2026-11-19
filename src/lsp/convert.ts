@@ -220,10 +220,19 @@ export function toTypeHierarchyItem(item: TypeHierarchyItem): vscode.TypeHierarc
   return converted;
 }
 
+export function fromSymbolKind(kind: vscode.SymbolKind): number {
+  for (const [lsp, converted] of Object.entries(SYMBOL_KIND)) {
+    if (converted === kind) {
+      return Number(lsp);
+    }
+  }
+  return 1;
+}
+
 export function fromTypeHierarchyItem(item: vscode.TypeHierarchyItem): TypeHierarchyItem {
   return {
     name: item.name,
-    kind: item.kind,
+    kind: fromSymbolKind(item.kind),
     detail: item.detail,
     uri: item.uri.toString(),
     range: {
