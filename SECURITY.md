@@ -20,3 +20,11 @@ and passes file paths and arguments as an array, never through a shell for the b
 workspaces; Run, Build and the REPL additionally check `vscode.workspace.isTrusted`
 before executing code. The language server is read-only with respect to the workspace.
 No telemetry is collected.
+
+## Dependency scanning
+
+The VSIX has no runtime npm dependencies: `vscode` is external and the bundle is built
+with esbuild. Dev-only packaging tools (`@vscode/vsce`, `ovsx`) are scanned by Dependabot;
+a transitive `minimatch` advisory is currently pinned by `@vscode/vsce`'s own range and has
+no compatible patched release, so it is tracked rather than forced. It does not run in the
+extension host.

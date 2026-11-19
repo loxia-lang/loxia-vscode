@@ -16,6 +16,10 @@ updates:
       # Must match engines.vscode (^1.85.0); a newer @types/vscode would advertise
       # APIs the minimum VS Code does not have.
       - dependency-name: "@types/vscode"
+      # @vscode/vsce 4.1.1 requires minimatch ^10.2.6 and the patched 11.x has no
+      # compatible vsce release yet. It is a dev-only packaging dependency and never
+      # ships in the VSIX; track it until vsce moves.
+      - dependency-name: "minimatch"
   - package-ecosystem: github-actions
     directory: /
     schedule:
