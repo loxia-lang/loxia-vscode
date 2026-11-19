@@ -96,7 +96,9 @@ async function main() {
   try {
     grammar = JSON.parse(text);
   } catch (error) {
-    throw new Error(`loxia.tmLanguage.json is not valid JSON: ${error.message}`);
+    throw new Error(`loxia.tmLanguage.json is not valid JSON: ${error.message}`, {
+      cause: error,
+    });
   }
   if (grammar.scopeName !== "source.loxia") {
     throw new Error(`unexpected scopeName ${String(grammar.scopeName)}`);

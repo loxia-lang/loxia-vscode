@@ -8,6 +8,11 @@ updates:
     groups:
       dev-dependencies:
         patterns: ["*"]
+    # Major bumps of the toolchain (ESLint 10, TypeScript 7, @types/vscode 2.x) are
+    # manual: they change the lint/type surface and need a code change in the same PR.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
