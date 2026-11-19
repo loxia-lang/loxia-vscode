@@ -352,6 +352,36 @@
           "scope": "window",
           "description": "Go to definition for Loxia symbols."
         },
+        "loxia.features.references": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Find references for Loxia symbols."
+        },
+        "loxia.features.documentHighlights": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Highlight other occurrences of the symbol under the cursor."
+        },
+        "loxia.features.typeDefinition": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Go to the type definition of an expression or annotation."
+        },
+        "loxia.features.implementation": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Go to interface implementors and class subtypes."
+        },
+        "loxia.features.typeHierarchy": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show the class and interface type hierarchy."
+        },
         "loxia.features.completion": {
           "type": "boolean",
           "default": true,

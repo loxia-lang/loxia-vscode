@@ -71,7 +71,7 @@ test("serverSettings maps the first-class features to the LSP initialization opt
 });
 
 test("SETTING_KEYS covers the manifest surface", () => {
-  assert.equal(SETTING_KEYS.length, 26);
+  assert.equal(SETTING_KEYS.length, 31);
   assert.ok(SETTING_KEYS.includes("features.diagnostics"));
   assert.ok(SETTING_KEYS.includes("run.compiled.maxHeap"));
 });

@@ -4,6 +4,7 @@ import type {
   CodeAction,
   CompletionItem,
   Diagnostic,
+  DocumentHighlight,
   DocumentSymbol,
   Hover,
   InlayHint,
@@ -18,6 +19,7 @@ import type {
   SymbolInformation,
   TextDocumentEdit,
   TextEdit,
+  TypeHierarchyItem,
   WorkspaceEdit,
 } from "./types";
 
@@ -57,6 +59,14 @@ const SYMBOL_KIND: Record<number, vscode.SymbolKind> = {
   25: vscode.SymbolKind.Operator,
   26: vscode.SymbolKind.TypeParameter,
 };
+
+const HIGHLIGHT_KIND: Record<number, vscode.DocumentHighlightKind> = {
+  1: vscode.DocumentHighlightKind.Text,
+  2: vscode.DocumentHighlightKind.Read,
+  3: vscode.DocumentHighlightKind.Write,
+};
+
+const typeHierarchyData = new WeakMap<vscode.TypeHierarchyItem, unknown>();
 
 const COMPLETION_KIND: Record<number, vscode.CompletionItemKind> = {
   1: vscode.CompletionItemKind.Text,
@@ -174,6 +184,11 @@ export function toDiagnostic(item: Diagnostic): vscode.Diagnostic {
     }
   }
   diagnostic.source = item.source ?? "loxia";
+  if (item.tags !== undefined) {
+    diagnostic.tags = item.tags.map((tag) =>
+      tag === 1 ? vscode.DiagnosticTag.Unnecessary : vscode.DiagnosticTag.Deprecated,
+    );
+  }
   if (item.relatedInformation !== undefined) {
     diagnostic.relatedInformation = item.relatedInformation.map(
       (related) =>
@@ -181,6 +196,49 @@ export function toDiagnostic(item: Diagnostic): vscode.Diagnostic {
     );
   }
   return diagnostic;
+}
+
+export function toDocumentHighlight(item: DocumentHighlight): vscode.DocumentHighlight {
+  return new vscode.DocumentHighlight(
+    toRange(item.range),
+    HIGHLIGHT_KIND[item.kind ?? 1] ?? vscode.DocumentHighlightKind.Text,
+  );
+}
+
+export function toTypeHierarchyItem(item: TypeHierarchyItem): vscode.TypeHierarchyItem {
+  const converted = new vscode.TypeHierarchyItem(
+    toSymbolKind(item.kind),
+    item.name,
+    item.detail ?? "",
+    vscode.Uri.parse(item.uri),
+    toRange(item.range),
+    toRange(item.selectionRange),
+  );
+  if (item.data !== undefined) {
+    typeHierarchyData.set(converted, item.data);
+  }
+  return converted;
+}
+
+export function fromTypeHierarchyItem(item: vscode.TypeHierarchyItem): TypeHierarchyItem {
+  return {
+    name: item.name,
+    kind: item.kind,
+    detail: item.detail,
+    uri: item.uri.toString(),
+    range: {
+      start: { line: item.range.start.line, character: item.range.start.character },
+      end: { line: item.range.end.line, character: item.range.end.character },
+    },
+    selectionRange: {
+      start: {
+        line: item.selectionRange.start.line,
+        character: item.selectionRange.start.character,
+      },
+      end: { line: item.selectionRange.end.line, character: item.selectionRange.end.character },
+    },
+    data: typeHierarchyData.get(item),
+  };
 }
 
 export function toSymbolKind(kind: number): vscode.SymbolKind {

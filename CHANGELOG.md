@@ -3,6 +3,25 @@
 All notable changes to the Loxia VS Code extension. The extension follows its own semver;
 the grammar pin (`grammar.lock.json`) tracks the language release it was built for.
 
+## [Unreleased]
+
+### Added
+
+- **Find references**, **document highlights**, **go to type definition**,
+  **implementation** and the **type hierarchy** view, each with its own
+  `loxia.features.*` toggle. They consume the new LSP capabilities from
+  `loxia` [#46](https://github.com/loxia-lang/loxia/issues/46).
+- **Fix all** (`source.fixAll`) is advertised alongside quick fixes; the server's safe
+  fixes are applied in one edit.
+- Renaming or moving a `.lx` file now sends `workspace/willRenameFiles`, so imports that
+  reference the module are rewritten before the move.
+
+### Changed
+
+- `DiagnosticTag.Unnecessary` from the server now greys out unused locals and imports.
+- Unsaved buffers of open modules are sent to the server, so importers recheck without a
+  save.
+
 ## [1.1.0] — 2026-11-18
 
 First release as its own repository, extracted from `loxia-lang/loxia` (ADR-0109).

@@ -103,7 +103,15 @@ export class LspClient {
         workspaceFolders: this.options.workspaceFolders,
         initializationOptions: this.options.initializationOptions,
         capabilities: {
-          workspace: { configuration: false, workspaceFolders: true },
+          workspace: {
+            configuration: false,
+            workspaceFolders: true,
+            fileOperations: {
+              willRename: {
+                filters: [{ scheme: "file", pattern: { glob: "**/*.lx" } }],
+              },
+            },
+          },
           textDocument: {
             synchronization: { dynamicRegistration: false },
             completion: {
@@ -114,6 +122,11 @@ export class LspClient {
             },
             hover: { contentFormat: ["markdown", "plaintext"] },
             definition: {},
+            references: {},
+            documentHighlight: {},
+            typeDefinition: {},
+            implementation: {},
+            typeHierarchy: {},
             rename: { prepareSupport: true },
             codeAction: {
               codeActionLiteralSupport: {

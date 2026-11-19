@@ -14,10 +14,14 @@ language server stay in the `loxia` CLI.
 
 - **Syntax highlighting** from the generated TextMate grammar (`.lx`).
 - **Diagnostics** with the same codes, spans, labels and trace as `loxia check`.
-- **Hover**, **go to definition**, **completion** (scope, imports, modules, members and
-  inherited members), **signature help**, **inlay hints** of inferred types.
-- **Formatting** with the canonical formatter, **quick fixes**, semantic **rename**
-  (including cross-file top-level symbols), **document symbols** and **workspace symbols**.
+- **Hover**, **go to definition**, **find references**, **document highlights**,
+  **completion** (scope, imports, modules, members and inherited members), **signature
+  help**, **inlay hints** of inferred types.
+- **Go to type definition** and **implementation** (interfaces and subclasses), plus the
+  **type hierarchy** view for classes and interfaces.
+- **Formatting** with the canonical formatter, **quick fixes** and **fix all**, semantic
+  **rename** (including cross-file top-level symbols), **document symbols** and **workspace
+  symbols**. Renaming or moving a `.lx` file updates the imports that reference it.
 - **Run** interpreted with the tree-walk interpreter or **compile** a native binary with
   the optional LLVM backend, from the editor title play button, the Run menu or the
   command palette.
@@ -95,9 +99,12 @@ The extension starts `loxia lsp` (JSON-RPC over stdio). Command resolution:
 3. `loxia.server.args` is appended (default `["lsp"]`); `loxia.server.cwd` changes the
    working directory.
 
-The client implements diagnostics, hover, definition, completion, signature help, inlay
-hints, formatting, code actions, rename, document and workspace symbols. The server is
-synchronous and uses full document sync; imported modules are read from disk.
+The client implements diagnostics, hover, definition, references, document highlights,
+type definition, implementation, type hierarchy, completion, signature help, inlay hints,
+formatting, code actions, rename, document and workspace symbols, and import edits on file
+rename. The server is synchronous and uses full document sync; unsaved buffers of open
+modules are used by the server, so editing an imported module updates its importers before
+saving.
 
 ## Settings
 
@@ -112,6 +119,11 @@ synchronous and uses full document sync; imported modules are read from disk.
 | `loxia.features.diagnostics`                | `true`          | Publish diagnostics.                                               |
 | `loxia.features.hover`                      | `true`          | Hover.                                                             |
 | `loxia.features.definition`                 | `true`          | Go to definition.                                                  |
+| `loxia.features.references`                 | `true`          | Find references.                                                   |
+| `loxia.features.documentHighlights`         | `true`          | Highlight occurrences of the symbol.                               |
+| `loxia.features.typeDefinition`             | `true`          | Go to type definition.                                             |
+| `loxia.features.implementation`             | `true`          | Go to implementations/subtypes.                                    |
+| `loxia.features.typeHierarchy`              | `true`          | Type hierarchy view.                                               |
 | `loxia.features.completion`                 | `true`          | Completion.                                                        |
 | `loxia.features.completionInheritedMembers` | `true`          | Inherited members in completion.                                   |
 | `loxia.features.signatureHelp`              | `true`          | Signature help.                                                    |

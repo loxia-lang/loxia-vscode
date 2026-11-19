@@ -44,6 +44,7 @@ export interface Diagnostic {
   source?: string;
   message: string;
   relatedInformation?: Array<{ location: Location; message: string }>;
+  tags?: number[];
 }
 
 export interface PublishDiagnosticsParams {
@@ -140,6 +141,21 @@ export interface InlayHint {
   kind?: number;
   paddingLeft?: boolean;
   paddingRight?: boolean;
+}
+
+export interface DocumentHighlight {
+  range: Range;
+  kind?: number;
+}
+
+export interface TypeHierarchyItem {
+  name: string;
+  kind: number;
+  detail?: string;
+  uri: string;
+  range: Range;
+  selectionRange: Range;
+  data?: unknown;
 }
 
 export interface PrepareRenameResult {
