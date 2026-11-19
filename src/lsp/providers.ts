@@ -2,8 +2,10 @@ import * as vscode from "vscode";
 
 import type { FeatureName, LoxiaSettings } from "../types";
 import {
+  fromTypeHierarchyItem,
   toCodeAction,
   toCompletionItem,
+  toDocumentHighlight,
   toDocumentSymbol,
   toHover,
   toInlayHint,
@@ -12,6 +14,7 @@ import {
   toSignatureHelp,
   toSymbolInformation,
   toTextEdits,
+  toTypeHierarchyItem,
   toWorkspaceEdit,
 } from "./convert";
 import type {
@@ -19,6 +22,7 @@ import type {
   CompletionItem,
   CompletionList,
   Diagnostic,
+  DocumentHighlight,
   DocumentSymbol,
   Hover,
   InlayHint,
@@ -28,6 +32,7 @@ import type {
   SignatureHelp,
   SymbolInformation,
   TextEdit,
+  TypeHierarchyItem,
 } from "./types";
 
 export interface ProviderDeps {
@@ -109,6 +114,110 @@ export function registerProviders(deps: ProviderDeps): vscode.Disposable[] {
         }
         const items = Array.isArray(result) ? result : [result];
         return items.map(toLocation);
+      },
+    }),
+  );
+
+  providers.push(
+    vscode.languages.registerReferenceProvider("loxia", {
+      provideReferences: async (document, position, context) => {
+        if (!enabled(deps, "references")) {
+          return undefined;
+        }
+        const result = await deps.request<Location[]>("textDocument/references", {
+          ...positionParams(document, position),
+          context: { includeDeclaration: context.includeDeclaration },
+        });
+        return (result ?? []).map(toLocation);
+      },
+    }),
+  );
+
+  providers.push(
+    vscode.languages.registerDocumentHighlightProvider("loxia", {
+      provideDocumentHighlights: async (document, position) => {
+        if (!enabled(deps, "documentHighlights")) {
+          return undefined;
+        }
+        const result = await deps.request<DocumentHighlight[]>(
+          "textDocument/documentHighlight",
+          positionParams(document, position),
+        );
+        return (result ?? []).map(toDocumentHighlight);
+      },
+    }),
+  );
+
+  providers.push(
+    vscode.languages.registerTypeDefinitionProvider("loxia", {
+      provideTypeDefinition: async (document, position) => {
+        if (!enabled(deps, "typeDefinition")) {
+          return undefined;
+        }
+        const result = await deps.request<Location | Location[] | LocationLink[]>(
+          "textDocument/typeDefinition",
+          positionParams(document, position),
+        );
+        if (result === undefined || result === null) {
+          return undefined;
+        }
+        const items = Array.isArray(result) ? result : [result];
+        return items.map(toLocation);
+      },
+    }),
+  );
+
+  providers.push(
+    vscode.languages.registerImplementationProvider("loxia", {
+      provideImplementation: async (document, position) => {
+        if (!enabled(deps, "implementation")) {
+          return undefined;
+        }
+        const result = await deps.request<Location | Location[] | LocationLink[]>(
+          "textDocument/implementation",
+          positionParams(document, position),
+        );
+        if (result === undefined || result === null) {
+          return undefined;
+        }
+        const items = Array.isArray(result) ? result : [result];
+        return items.map(toLocation);
+      },
+    }),
+  );
+
+  providers.push(
+    vscode.languages.registerTypeHierarchyProvider("loxia", {
+      prepareTypeHierarchy: async (document, position) => {
+        if (!enabled(deps, "typeHierarchy")) {
+          return undefined;
+        }
+        const result = await deps.request<TypeHierarchyItem[]>(
+          "textDocument/prepareTypeHierarchy",
+          positionParams(document, position),
+        );
+        if (result === undefined || result.length === 0) {
+          return undefined;
+        }
+        return result.map(toTypeHierarchyItem);
+      },
+      provideTypeHierarchySupertypes: async (item) => {
+        if (!enabled(deps, "typeHierarchy")) {
+          return undefined;
+        }
+        const result = await deps.request<TypeHierarchyItem[]>("typeHierarchy/supertypes", {
+          item: fromTypeHierarchyItem(item),
+        });
+        return (result ?? []).map(toTypeHierarchyItem);
+      },
+      provideTypeHierarchySubtypes: async (item) => {
+        if (!enabled(deps, "typeHierarchy")) {
+          return undefined;
+        }
+        const result = await deps.request<TypeHierarchyItem[]>("typeHierarchy/subtypes", {
+          item: fromTypeHierarchyItem(item),
+        });
+        return (result ?? []).map(toTypeHierarchyItem);
       },
     }),
   );
@@ -197,7 +306,12 @@ export function registerProviders(deps: ProviderDeps): vscode.Disposable[] {
           return (actions ?? []).map(toCodeAction);
         },
       },
-      { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] },
+      {
+        providedCodeActionKinds: [
+          vscode.CodeActionKind.QuickFix,
+          vscode.CodeActionKind.SourceFixAll,
+        ],
+      },
     ),
   );
 
@@ -255,6 +369,25 @@ export function registerProviders(deps: ProviderDeps): vscode.Disposable[] {
         }
         return (result as DocumentSymbol[]).map(toDocumentSymbol);
       },
+    }),
+  );
+
+  providers.push(
+    vscode.workspace.onWillRenameFiles((event) => {
+      if (!enabled(deps, "rename")) {
+        return;
+      }
+      const files = event.files
+        .filter(({ oldUri, newUri }) => oldUri.path.endsWith(".lx") && newUri.path.endsWith(".lx"))
+        .map(({ oldUri, newUri }) => ({ oldUri: oldUri.toString(), newUri: newUri.toString() }));
+      if (files.length === 0) {
+        return;
+      }
+      const promise = deps
+        .request<Parameters<typeof toWorkspaceEdit>[0]>("workspace/willRenameFiles", { files })
+        .then((edit) => toWorkspaceEdit(edit))
+        .catch(() => undefined);
+      event.waitUntil(promise as Promise<vscode.WorkspaceEdit>);
     }),
   );
 

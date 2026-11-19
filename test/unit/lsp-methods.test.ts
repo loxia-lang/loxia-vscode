@@ -13,6 +13,13 @@ test("the client covers every server method it registers", () => {
     "textDocument/formatting",
     "textDocument/hover",
     "textDocument/definition",
+    "textDocument/references",
+    "textDocument/documentHighlight",
+    "textDocument/typeDefinition",
+    "textDocument/implementation",
+    "textDocument/prepareTypeHierarchy",
+    "typeHierarchy/supertypes",
+    "typeHierarchy/subtypes",
     "textDocument/completion",
     "textDocument/signatureHelp",
     "textDocument/inlayHint",
@@ -21,6 +28,7 @@ test("the client covers every server method it registers", () => {
     "textDocument/rename",
     "textDocument/documentSymbol",
     "workspace/symbol",
+    "workspace/willRenameFiles",
   ]) {
     assert.ok(providers.includes(method), `client does not call ${method}`);
   }
@@ -35,6 +43,13 @@ test("the provider registrations use the current VS Code APIs", () => {
   assert.ok(providers.includes("vscode.languages.registerInlayHintsProvider"));
   assert.ok(providers.includes("vscode.languages.registerCodeActionsProvider"));
   assert.ok(providers.includes("vscode.languages.registerRenameProvider"));
+  assert.ok(providers.includes("vscode.languages.registerReferenceProvider"));
+  assert.ok(providers.includes("vscode.languages.registerDocumentHighlightProvider"));
+  assert.ok(providers.includes("vscode.languages.registerTypeDefinitionProvider"));
+  assert.ok(providers.includes("vscode.languages.registerImplementationProvider"));
+  assert.ok(providers.includes("vscode.languages.registerTypeHierarchyProvider"));
+  assert.ok(providers.includes("vscode.workspace.onWillRenameFiles"));
+  assert.ok(client.includes("fileOperations"));
 });
 
 test("the extension does not depend on vscode-languageclient", () => {

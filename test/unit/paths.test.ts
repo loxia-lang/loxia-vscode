@@ -92,6 +92,8 @@ test("quoteShellArg quotes for POSIX, PowerShell and cmd", () => {
   assert.equal(quoteShellArg("x'y", "powershell"), "'x''y'");
   assert.equal(quoteShellArg("a b", "cmd"), '"a b"');
   assert.equal(quoteShellArg('x"y', "cmd"), '"x\\"y"');
+  assert.equal(quoteShellArg("C:\\", "cmd"), '"C:\\\\"');
+  assert.equal(quoteShellArg('a\\"b', "cmd"), '"a\\\\\\"b"');
   assert.equal(quoteShellArg("", "posix"), "''");
 });
 

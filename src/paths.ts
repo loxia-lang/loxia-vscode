@@ -149,12 +149,38 @@ export function shellKindFor(shellPath: string, platform: NodeJS.Platform): Shel
   return "powershell";
 }
 
+/**
+ * Quote one argument for cmd.exe using the MSVCRT/CreateProcess rules: backslashes
+ * are literal except before a quote or the closing quote, where they must be doubled
+ * (and one extra backslash escapes a literal quote). Escaping `"` alone was wrong for
+ * values ending in a backslash or containing `\"`.
+ */
+function quoteForCmd(value: string): string {
+  let quoted = '"';
+  let backslashes = 0;
+  for (const character of value) {
+    if (character === "\\") {
+      backslashes += 1;
+      continue;
+    }
+    if (character === '"') {
+      quoted += "\\".repeat(backslashes * 2 + 1) + '"';
+      backslashes = 0;
+      continue;
+    }
+    quoted += "\\".repeat(backslashes) + character;
+    backslashes = 0;
+  }
+  quoted += "\\".repeat(backslashes * 2) + '"';
+  return quoted;
+}
+
 export function quoteShellArg(value: string, kind: ShellKind): string {
   if (kind === "powershell") {
     return `'${value.replace(/'/g, "''")}'`;
   }
   if (kind === "cmd") {
-    return `"${value.replace(/"/g, '\\"')}"`;
+    return quoteForCmd(value);
   }
   return `'${value.replace(/'/g, "'\\''")}'`;
 }

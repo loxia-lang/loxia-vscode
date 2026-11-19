@@ -45,6 +45,11 @@ needs the default (empty path).
 | `loxia.features.diagnostics`                | `true`  |
 | `loxia.features.hover`                      | `true`  |
 | `loxia.features.definition`                 | `true`  |
+| `loxia.features.references`                 | `true`  |
+| `loxia.features.documentHighlights`         | `true`  |
+| `loxia.features.typeDefinition`             | `true`  |
+| `loxia.features.implementation`             | `true`  |
+| `loxia.features.typeHierarchy`              | `true`  |
 | `loxia.features.completion`                 | `true`  |
 | `loxia.features.completionInheritedMembers` | `true`  |
 | `loxia.features.signatureHelp`              | `true`  |
