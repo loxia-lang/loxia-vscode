@@ -73,13 +73,13 @@
     "release:check": "node scripts/verify-release.mjs"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.5",
-    "@types/node": "22.20.5",
-    "@types/vscode": "1.85.0",
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "@types/vscode": "1.146.0",
     "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
-    "eslint": "9.39.5",
+    "eslint": "10.15.0",
     "ovsx": "1.4.0",
     "prettier": "3.10.1",
     "tsx": "4.23.15",
