@@ -5,7 +5,7 @@ import path from "node:path";
 import * as vscode from "vscode";
 
 import { buildArgs, checkArgs, classifyBuildFailure, replArgs, runArgs } from "./cli";
-import { compiledOutputPath, formatCommand, splitArgs } from "./paths";
+import { commandLine, compiledOutputPath, formatCommand, shellKindFor, splitArgs } from "./paths";
 import type { CliCommand, LoxiaSettings, ResolvedRunMode } from "./types";
 
 export interface RunServiceDeps {
@@ -271,14 +271,16 @@ export class RunService {
   }
 
   private launch(name: string, command: string, args: readonly string[], cwd: string): void {
-    const terminal = vscode.window.createTerminal({
-      name,
-      cwd,
-      shellPath: command,
-      shellArgs: [...args],
-    });
+    // A normal shell terminal (not `shellPath`) stays open after the program exits, so
+    // the output is still there when the user looks back. `sendText` is safe here
+    // because every word is quoted for the active shell.
+    const kind = shellKindFor(vscode.env.shell, process.platform);
+    const line = commandLine(command, args, kind);
+    const terminal = vscode.window.createTerminal({ name, cwd });
     this.terminals.add(terminal);
     terminal.show();
+    this.deps.output.appendLine(`$ ${line}`);
+    terminal.sendText(line, true);
   }
 
   private async prepare(

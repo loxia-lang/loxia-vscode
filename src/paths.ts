@@ -122,3 +122,48 @@ export function splitArgs(input: string): string[] {
 export function formatCommand(command: string, args: readonly string[]): string {
   return [command, ...args].join(" ");
 }
+
+export type ShellKind = "posix" | "powershell" | "cmd";
+
+/** The terminal profile decides the quoting rules; `vscode.env.shell` names it. */
+export function shellKindFor(shellPath: string, platform: NodeJS.Platform): ShellKind {
+  if (platform !== "win32") {
+    return "posix";
+  }
+  const name = path.win32.basename(shellPath).toLowerCase();
+  if (name === "cmd" || name === "cmd.exe") {
+    return "cmd";
+  }
+  if (
+    name === "wsl" ||
+    name === "wsl.exe" ||
+    name === "sh" ||
+    name === "sh.exe" ||
+    name.includes("bash") ||
+    name.includes("zsh") ||
+    name.includes("fish")
+  ) {
+    return "posix";
+  }
+  // PowerShell is the VS Code default on Windows; unknown shells get its rules.
+  return "powershell";
+}
+
+export function quoteShellArg(value: string, kind: ShellKind): string {
+  if (kind === "powershell") {
+    return `'${value.replace(/'/g, "''")}'`;
+  }
+  if (kind === "cmd") {
+    return `"${value.replace(/"/g, '\\"')}"`;
+  }
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+/**
+ * Quotes the command and every argument for the terminal's shell. PowerShell needs
+ * `&` to invoke a quoted command; POSIX and cmd accept the quoted command directly.
+ */
+export function commandLine(command: string, args: readonly string[], kind: ShellKind): string {
+  const quoted = [command, ...args].map((value) => quoteShellArg(value, kind)).join(" ");
+  return kind === "powershell" ? `& ${quoted}` : quoted;
+}

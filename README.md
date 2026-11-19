@@ -60,6 +60,9 @@ Other entry points:
 - **Loxia: Check File** runs `loxia check` in a terminal (useful when diagnostics are off).
 - **Loxia: Open REPL** opens an interactive `loxia repl` in the workspace.
 
+Each run uses a normal terminal, so the program output stays visible after it exits (the
+shell prompt returns; the terminal is not closed with the process).
+
 Compiled artifacts keep the source layout under `.loxia/bin/` (for example
 `src/main.lx` → `.loxia/bin/src/main`), so two `main.lx` files do not collide. The
 `.loxia/` directory is already the project cache convention and is ignored by the

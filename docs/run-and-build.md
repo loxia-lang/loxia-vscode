@@ -12,6 +12,8 @@ corpus.
 - `loxia.run.debug` adds `--debug` (overflow checks, fatal on overflow).
 - Arguments are passed after `--`: `loxia run main.lx -- a -b`.
 - The terminal is interactive, so `std.io.input`/`readLine` work.
+- Each run opens a normal terminal; when the program exits, the shell prompt returns and
+  the output stays in that terminal instead of disappearing with the process.
 
 ## Compiled
 

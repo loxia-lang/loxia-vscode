@@ -33,6 +33,13 @@ First release as its own repository, extracted from `loxia-lang/loxia` (ADR-0109
 - **Grammar pinned by release asset**: `syntaxes/loxia.tmLanguage.json` is downloaded from
   the `loxia-lang/loxia` release and verified with `grammar.lock.json` (version + SHA-256).
 
+### Fixed
+
+- **Run output no longer disappears**: Run/Build/Check/REPL now execute through a normal
+  terminal with `sendText` and shell-specific quoting instead of setting the process as the
+  terminal's `shellPath`. When the program exits, the shell prompt returns and the output
+  remains in the terminal.
+
 ### Changed
 
 - The LSP client now lives in this repository; the language server remains in the main

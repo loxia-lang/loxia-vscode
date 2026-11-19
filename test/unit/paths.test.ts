@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { compiledOutputPath, formatCommand, splitArgs, substituteVariables } from "../../src/paths";
+import {
+  commandLine,
+  compiledOutputPath,
+  formatCommand,
+  quoteShellArg,
+  shellKindFor,
+  splitArgs,
+  substituteVariables,
+} from "../../src/paths";
 import type { VariableContext } from "../../src/types";
 
 const context: VariableContext = {
@@ -64,4 +72,40 @@ test("splitArgs handles quotes, escapes and empty quoted strings", () => {
 
 test("formatCommand is only for logs, but keeps every argument", () => {
   assert.equal(formatCommand("loxia", ["run", "a.lx", "--", "x"]), "loxia run a.lx -- x");
+});
+
+test("shellKindFor detects the terminal families", () => {
+  assert.equal(shellKindFor("/bin/bash", "linux"), "posix");
+  assert.equal(shellKindFor("C:\\Windows\\System32\\cmd.exe", "win32"), "cmd");
+  assert.equal(
+    shellKindFor("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "win32"),
+    "powershell",
+  );
+  assert.equal(shellKindFor("C:\\Program Files\\Git\\bin\\bash.exe", "win32"), "posix");
+  assert.equal(shellKindFor("C:\\Windows\\System32\\wsl.exe", "win32"), "posix");
+});
+
+test("quoteShellArg quotes for POSIX, PowerShell and cmd", () => {
+  assert.equal(quoteShellArg("a b", "posix"), "'a b'");
+  assert.equal(quoteShellArg("x'y", "posix"), "'x'\\''y'");
+  assert.equal(quoteShellArg("a b", "powershell"), "'a b'");
+  assert.equal(quoteShellArg("x'y", "powershell"), "'x''y'");
+  assert.equal(quoteShellArg("a b", "cmd"), '"a b"');
+  assert.equal(quoteShellArg('x"y', "cmd"), '"x\\"y"');
+  assert.equal(quoteShellArg("", "posix"), "''");
+});
+
+test("commandLine keeps the command and arguments as separate words", () => {
+  assert.equal(
+    commandLine("python3", ["-m", "loxia", "run", "/a b/main.lx", "--", "x y"], "posix"),
+    "'python3' '-m' 'loxia' 'run' '/a b/main.lx' '--' 'x y'",
+  );
+  assert.equal(
+    commandLine("C:\\Program Files\\Python\\python.exe", ["-m", "loxia"], "powershell"),
+    "& 'C:\\Program Files\\Python\\python.exe' '-m' 'loxia'",
+  );
+  assert.equal(
+    commandLine("C:\\Program Files\\Python\\python.exe", ["-m", "loxia"], "cmd"),
+    '"C:\\Program Files\\Python\\python.exe" "-m" "loxia"',
+  );
 });

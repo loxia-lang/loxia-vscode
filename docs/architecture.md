@@ -65,10 +65,12 @@ the document when configured, and:
   cancellable progress notification (the build log streams to **Loxia Run**), then opens
   a terminal for the binary.
 
-The terminal is created with `shellPath`/`shellArgs` rather than `sendText`, so paths and
-arguments are not re-parsed by a shell. The compiled output path mirrors the source tree
-under `loxia.run.compiled.outputDir` (default `.loxia/bin`), which avoids collisions and
-stays inside the `.loxia/` directory projects already ignore.
+The command is sent to a normal shell terminal with `sendText`, with every word quoted for
+the active shell (POSIX, PowerShell or cmd). That keeps the terminal open after the
+program exits, so the output remains visible; the build itself uses `spawn` with an
+argument array and no shell. The compiled output path mirrors the source tree under
+`loxia.run.compiled.outputDir` (default `.loxia/bin`), which avoids collisions and stays
+inside the `.loxia/` directory projects already ignore.
 
 Run/Build/REPL require a trusted workspace and touch only `file:` documents. Check is
 read-only and works in untrusted workspaces.
