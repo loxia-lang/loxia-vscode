@@ -469,5 +469,9 @@
         }
       }
     }
+  },
+  "galleryBanner": {
+    "color": "#111827",
+    "theme": "dark"
   }
 }
